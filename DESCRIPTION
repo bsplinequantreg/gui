@@ -1,14 +1,14 @@
 Package: BsplineQuantRegGui
 Type: Package
-Title: Interactive 'Shiny' Interface for 'BsplineQuantReg'
+Title: Interactive 'shiny' Interface for 'BsplineQuantReg'
 Version: 0.1.0
 Language: en-GB
 Date: 2026-07-28
 Authors@R: person("Alexandre", "Abbes", email = "alexandre.abbes@proton.me", role = c("aut", "cre"))
-Description: A user-friendly interactive Shiny interface for the 'BsplineQuantReg' package, enabling quantile regression using B-splines with shape constraints,
-    based on the method described in Abbes (2025). Almost all parameters of the main function 'quantile_spline()' can be tuned. Features include interactive
+Description: A user-friendly interactive 'shiny' interface for the 'BsplineQuantReg' package, enabling quantile regression using B-splines with shape constraints,
+    based on the method described in Abbes (2025). Almost all parameters of the main function quantile_spline() can be tuned. Features include interactive
     knot placement, per-region constraint specification, 'CSV' data import, direct demo access, reproducible R code generation, and solver selection.
-    This GUI is similar to the 'Python Tk' version 'BsplineQuantRegPy'.
+    This 'GUI' is similar to the 'Python' 'tkinter' version 'BsplineQuantRegPy'.
 License: GPL-3
 Encoding: UTF-8
 Depends: R (>= 4.6.0)

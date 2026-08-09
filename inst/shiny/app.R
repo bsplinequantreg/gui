@@ -1,6 +1,7 @@
 # BsplineQuantReg Shiny Interface
 # Author: Alexandre Abbes
-# Stable version with graphical region selection
+# version 0.1.0
+# Stable versionwith graphical region selection
 #
 # Run with:
 # shiny::runApp("R/run_gui.R")
@@ -742,7 +743,7 @@ server <- function(input, output, session) {
         kn <- max((input$knots_count), 2) - 1
 
         #if (is.na(knots_count)){knots_count=2}
-        values$knot <- quantile(values$xtab, probs = ((0:(kn)) / (kn)))
+        values$knot <- as.numeric(quantile(values$xtab, probs = ((0:(kn)) / (kn))))
       }
       else{
         kn = 1
@@ -809,7 +810,7 @@ server <- function(input, output, session) {
     values$manual_knots <- list()
     if (!is.null(values$xtab)) {
       kn <- max(input$knots_count, 2) - 1
-      values$knot <- quantile(values$xtab, probs = (0:(kn)) / (kn))
+      values$knot <- as.numeric(quantile(values$xtab, probs = (0:(kn)) / (kn)))
     }
     showNotification("knot reset", type = "message")
   })
@@ -942,9 +943,9 @@ server <- function(input, output, session) {
       conv <- input$conv
       der3 <- input$der3
     } else {
-      monot <- rep(0, kn)
-      conv <- rep(0, kn + 1)
-      der3 <- rep(0, kn + 1)
+      monot <- rep(0, kn + 1) #each time give the maximum of knots
+      conv <- rep(0, kn + 1) # so that for all degrees
+      der3 <- rep(0, kn + 1)  # the number of constraints is satisfied
       for (region in values$regions) {
         for (i in 1:kn) {
           x1 <- values$knot[i]
@@ -1029,7 +1030,7 @@ server <- function(input, output, session) {
 
       values$manual_knots <- list()
       kn <- max(input$knots_count, 2) - 1
-      values$knot <- quantile(values$xtab, probs = (0:(kn)) / (kn))
+      values$knot <- as.numeric(quantile(values$xtab, probs = (0:(kn)) / (kn)))
 
       showNotification(paste(
         "File loaded:",
@@ -1093,7 +1094,7 @@ server <- function(input, output, session) {
 
       values$manual_knots <- list()
       kn <- max(input$knot_count, 2) - 1
-      values$knot <- quantile(values$xtab, probs = (0:(kn)) / (kn))
+      values$knot <- as.numeric(quantile(values$xtab, probs = (0:(kn)) / (kn)))
 
       showNotification(paste(
         "File loaded:",
@@ -1162,23 +1163,7 @@ server <- function(input, output, session) {
         args$type_reg <- input$type_reg
       }
 
-      # Capturer la sortie
-        #  console_text <-vector('character')
-        #  connec    <- textConnection('console_text', 'wr', local = TRUE)
 
-         # sink(connec)
-        #  fitted<-do.call(quantile_spline, args)
-         # sink()
-        #  close(connec)
-
-#          log_console(console_text)
-      # Afficher la sortie capturée
-      #for (line in console_text) {
-      #  if (nchar(line) > 0) {
-      #    log_console(paste(line))
-      #  }
-      #}
-      # Capturer toutes les sorties
       console_text <- character()
 
       # Rediriger stdout
