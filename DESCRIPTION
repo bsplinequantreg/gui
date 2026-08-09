@@ -1,7 +1,7 @@
 Package: BsplineQuantRegGui
 Type: Package
 Title: Interactive 'shiny' Interface for 'BsplineQuantReg'
-Version: 0.1.0
+Version: 0.1.1
 Language: en-GB
 Date: 2026-07-28
 Authors@R: person("Alexandre", "Abbes", email = "alexandre.abbes@proton.me", role = c("aut", "cre"))
@@ -22,7 +22,10 @@ Imports: BsplineQuantReg (>= 0.2.2),
     colourpicker,
     png,
     ECOSolveR
-Suggests: cobs
+Suggests: 
+    cobs,
+    testthat (>= 3.0.0),
+    shinytest2
 LazyData: true
 Config/testthat/edition: 3
 NeedsCompilation: no
