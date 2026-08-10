@@ -6,10 +6,6 @@
 # Run with:
 # shiny::runApp("R/run_gui.R")
 
-if (exists("spline_eval"))
-  { rm('spline_eval')
-  cat("Suppression de spline_eval du .GlobalEnv\n")
-}
 
 library(BsplineQuantReg)
 

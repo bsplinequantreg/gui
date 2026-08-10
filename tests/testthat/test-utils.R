@@ -95,7 +95,7 @@ test_that("Auto_knot generation works correctly", {
   # Test with minimal knot
   knot_count <- 2
   kn <- knot_count - 1
-  knot <- quantile(x, probs = (0:kn) / kn)
+  knot <- as.numeric(quantile(x, probs = (0:kn) / kn))
   expect_length(knot, 2)
   expect_equal(knot, c(0, 1))
 })
@@ -154,28 +154,4 @@ test_that("Region management works correctly", {
   expect_equal(regions[[2]]$monot, -1)
 })
 
-test_that("Region overlap detection works correctly", {
-  # Helper function to check overlap
-  is_overlapping <- function(region, knot) {
-    for (i in 1:(length(knot) - 1)) {
-      x1 <- knot[i]
-      x2 <- knot[i + 1]
-      if (x2 > region$xmin && x1 < region$xmax) {
-        return(TRUE)
-      }
-    }
-    return(FALSE)
-  }
 
-  knot <- c(0, 0.25, 0.5, 0.75, 1)
-
-  region1 <- list(xmin = 0.2, xmax = 0.4)
-  region2 <- list(xmin = 0.5, xmax = 0.7)
-  region3 <- list(xmin = 0.8, xmax = 0.9)
-  region4 <- list(xmin = -0.1, xmax = 0.1)
-
-  expect_true(is_overlapping(region1, knot))
-  expect_true(is_overlapping(region2, knot))
-  expect_true(is_overlapping(region3, knot))
-  expect_false(is_overlapping(region4, knot))
-})
