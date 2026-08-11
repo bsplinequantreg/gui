@@ -25,7 +25,7 @@ run_all_tests <- function() {
   for (file in test_files) {
     file_path <- file.path("tests/testthat", file)
     if (file.exists(file_path)) {
-      cat(sprintf("📁 Running %s...\n", file))
+      cat(sprintf("!##! Running %s...\n", file))
       cat("───────────────────────────────────────────────────────────────\n")
 
       # Capture test results
@@ -57,7 +57,7 @@ run_all_tests <- function() {
         }
       }
     } else {
-      cat(sprintf("⚠️  Warning: %s not found\n", file_path))
+      cat(sprintf("!WW!  Warning: %s not found\n", file_path))
     }
   }
 
