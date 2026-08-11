@@ -3,19 +3,25 @@
 export(run_gui)
 import(BsplineQuantReg)
 import(ECOSolveR)
-importFrom(DT,DTOutput)
-importFrom(DT,datatable)
-importFrom(DT,renderDT)
+importFrom(DT,
+  DTOutput,
+  datatable,
+  renderDT
+)
 importFrom(colourpicker,colourInput)
 importFrom(grDevices,png)
-importFrom(plotly,plot_ly)
-importFrom(plotly,plotlyOutput)
-importFrom(plotly,renderPlotly)
+importFrom(plotly,
+  plot_ly,
+  plotlyOutput,
+  renderPlotly
+)
 importFrom(png,readPNG)
-importFrom(shiny,fluidPage)
-importFrom(shiny,mainPanel)
-importFrom(shiny,runApp)
-importFrom(shiny,shinyApp)
-importFrom(shiny,sidebarLayout)
+importFrom(shiny,
+  fluidPage,
+  mainPanel,
+  runApp,
+  shinyApp,
+  sidebarLayout
+)
 importFrom(shinyjs,useShinyjs)
 importFrom(shinythemes,shinytheme)

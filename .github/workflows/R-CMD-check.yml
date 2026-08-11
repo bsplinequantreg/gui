@@ -1,0 +1,102 @@
+# .github/workflows/R-CMD-check.yml
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main, master, develop, with-quartic]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'devel'}
+          - {os: macos-latest, r: 'release'}
+          - {os: windows-latest, r: 'release'}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: https://packagemanager.rstudio.com/cran/__linux__/focal/latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            any::testthat
+            any::shinytest2
+            any::shiny
+            any::DT
+            any::plotly
+            any::colourpicker
+            any::shinythemes
+            any::shinyjs
+            any::ECOSolveR
+            any::covr
+          needs: check
+
+      - name: Install BsplineQuantReg package
+        run: |
+          Rscript -e "install.packages('BsplineQuantReg', repos = 'https://cloud.r-project.org')"
+
+      - name: Check package
+        run: |
+          options(crayon.enabled = TRUE)
+          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
+        shell: Rscript {0}
+
+      - name: Run unit tests (non-interactive)
+        run: |
+          testthat::test_dir("tests/testthat",
+                             filter = "test-region_management|test-regression|test-server|test_utils",
+                             reporter = "progress")
+        shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-results
+          path: check
+
+      # Optional: Run shinytest2 tests (require Chrome)
+      - name: Setup Chrome for shinytest2
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+
+      - name: Run shinytest2 tests
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        run: |
+          testthat::test_dir("tests/testthat",
+                             filter = "test-shinytest2",
+                             reporter = "progress")
+        shell: Rscript {0}
+        continue-on-error: true  # shinytest2 tests can be flaky in CI
+
+      # Run coverage
+      - name: Test coverage
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        run: |
+          covr::codecov()
+        shell: Rscript {0}

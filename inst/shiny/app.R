@@ -359,14 +359,13 @@ ui <- fluidPage(
               ),
 
               p("Curves:", textOutput("curve_count", inline = TRUE)),
-
-
-              actionButton("run", "Run", class = "btn-success btn-lg"),
-
               fluidRow(
-                actionButton("clear_all", "Clear all", class = "btn-sm btn-danger"),
-                actionButton("clear_curves", "Clear curves", class = "btn-sm btn-warning")
-              ),
+              actionButton("run", "Run", class = "btn-success btn-lg"),
+              actionButton("clear_curves", "Clear curves", class = "btn-sm btn-warning")),
+              br(),
+              actionButton("clear_all", "Clear all", class = "btn-sm btn-danger")
+
+
             )
           ),
           br(),
@@ -382,24 +381,24 @@ ui <- fluidPage(
 
           ),
 
-          hr(),
+          # hr(),
 
           # Demos
-          fluidRow(
-            column(
-              12,
-              h5("Run Demos:"),
-              actionButton("demo_comp", "Comprehensive", class = "btn-sm btn-info"),
-              actionButton("demo_monot", "Monotonicity basic", class = "btn-sm btn-info"),
-              actionButton("demo_log", "Logistic", class = "btn-sm btn-info"),
-              actionButton("demo_temp", "Temperature", class = "btn-sm btn-info"),
-              actionButton("demo_temp2", "Temperature2", class = "btn-sm btn-info"),
-              actionButton("demo_conv", "Convexity", class = "btn-sm btn-info"),
-              actionButton("demo_degrees", "Degrees", class = "btn-sm btn-info"),
-              actionButton("demo_derivative", "Derivative", class = "btn-sm btn-info"),
-              actionButton("demo_der3", "Third derivative", class = "btn-sm btn-info")
-            )
-          ),
+          # fluidRow(
+          #   column(
+          #     12,
+          #     h5("Run Demos:"),
+          #     actionButton("demo_comp", "Comprehensive", class = "btn-sm btn-info"),
+          #     actionButton("demo_monot", "Monotonicity basic", class = "btn-sm btn-info"),
+          #     actionButton("demo_log", "Logistic", class = "btn-sm btn-info"),
+          #     actionButton("demo_temp", "Temperature", class = "btn-sm btn-info"),
+          #     actionButton("demo_temp2", "Temperature2", class = "btn-sm btn-info"),
+          #     actionButton("demo_conv", "Convexity", class = "btn-sm btn-info"),
+          #     actionButton("demo_degrees", "Degrees", class = "btn-sm btn-info"),
+          #     actionButton("demo_derivative", "Derivative", class = "btn-sm btn-info"),
+          #     actionButton("demo_der3", "Third derivative", class = "btn-sm btn-info")
+          #   )
+          # ),
           div(
             id = "demo_area",
             style = "display: none; margin-top: 10px;",
