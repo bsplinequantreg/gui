@@ -1,5 +1,3 @@
-
-
 # ============================================================================
 # INTEGRATION WITH CI/CD
 # ============================================================================
@@ -17,7 +15,7 @@
 #       - uses: r-lib/actions/setup-pandoc@v2
 #       - name: Install dependencies
 #         run: |
-#           install.packages(c("testthat", "shinytest2", "shiny", "DT", "plotly"))
+#           install.packages(c("testthat", "shiny", "DT", "plotly"))
 #       - name: Run tests
 #         run: |
 #           devtools::test()

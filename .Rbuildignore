@@ -7,3 +7,4 @@
 ^nohup.out$
 ^core*$
 ^cran-comments\.md$
+^.\tests/testthat/shinytest2$

@@ -1,22 +1,24 @@
-#BsplineQuantRegGui 0.1.1
-## fix:
+#'BsplineQuantRegGui' 0.1.1
+## 2026-08-10
+### fix:
 -name function with no ' ' in description
 -use as.numeric() after quantile()
+### changes:
+- add tests for the 'shiny' App build with 'testthat'
 
 
-
-# BsplineQuantRegGui 0.1.0
+# 'BsplineQuantRegGui' 0.1.0
 
 ## Initial Release (2026-07-26)
 
 ### Features
 
-- Interactive Shiny interface for BsplineQuantReg
+- Interactive 'shiny' interface for 'BsplineQuantReg'
 - Support for multiple data sources:
   - Test datasets
   - Temperature data (1880-1992)
   - Custom mathematical functions
-  - CSV and Excel file import
+  - 'CSV' and 'Excel' file import
 - Interactive knot management:
   - Add/remove knots by clicking on the plot
   - Automatic knot distribution
@@ -25,7 +27,7 @@
   - Per-region constraints with visual selection
   - Support for monotonicity, convexity, and 3rd derivative constraints
 - Visualization:
-  - Interactive plotly graphics with zoom and pan
+  - Interactive 'plotly' graphics with zoom and pan
   - Multiple curve overlays
   - Customizable curve colors
   - Region highlighting
@@ -34,7 +36,7 @@
   - Coefficient display
   - R code generation for reproducibility
 - Demo integration:
-  - Run all BsplineQuantReg demos from the interface
+  - Run all 'BsplineQuantReg' demos from the interface
 - User experience:
   - Clean, modern UI with flatly theme
   - Progress indicators

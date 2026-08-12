@@ -1,0 +1,171 @@
+---
+title: "README"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Testing BsplineQuantRegGui
+
+This directory contains the complete test suite for the
+BsplineQuantRegGui package.
+
+## Test File Structure
+
+```         
+tests/
+├── testthat.R                    # Main test runner (required by testthat)
+├── run_all_tests.R               # Manual test runner with summary
+└── testthat/
+    ├── helper.R                  # Test helpers and utilities
+    ├── setup.R                   # Test environment setup
+    ├── teardown.R                # Test environment cleanup
+    ├── test_utils.R              # Tests for helper functions
+    ├── test-region_management.R  # Region management tests
+    ├── test-regression.R         # Regression and constraint tests
+    └── test-server.R             # Server logic tests
+```
+
+## Test Files Overview
+
+### 1. `helper.R` - Test Helpers
+
+Common functions used across all tests: - Test data generators
+(`create_test_data()`, `create_test_knots()`) - Test regions
+(`create_test_regions()`) - Custom expectations
+(`expect_constraint_lengths()`) - Path helpers (`get_app_dir()`) - Safe
+operations (`safe_click()`, `safe_set_inputs()`)
+
+### 2. `test_utils.R` - Helper Tests
+
+Unit tests for the helper functions themselves: - Data generation - Knot
+creation - Region creation - Path resolution - Safe operation functions
+
+### 3. `test-region_management.R` - Region Tests
+
+Comprehensive tests for region operations: - Region CRUD (Create, Read,
+Update, Delete) - Region validation - Region selection - Region
+formatting - Performance with 1000+ regions
+
+**Test count:** \~109 passing tests
+
+### 4. `test-regression.R` - Regression Tests
+
+Tests for regression functionality: - Data generation and knot
+creation - Constraint building (uniform and region-based) - Regression
+with different parameters (tau, degree, solvers) - Fitted function
+evaluation - Verbose and type_reg parameters - Performance with larger
+datasets
+
+**Test count:** \~16 passing tests
+
+### 5. `test-server.R` - Server Logic Tests
+
+Tests for Shiny server logic: - Reactive values initialization - Data
+loading - Knot management - Region management - Curve management - Clear
+all functionality - Mode toggles - Full workflow integration
+
+**Test count:** \~13 passing tests
+
+**Test count:** \~14 passing tests (skipped on CRAN)
+
+### 6. `testthat.R` - Main Test Runner
+
+Required file for testthat. Automatically discovers and runs all tests.
+
+### 7. `run_all_tests.R` - Manual Test Runner
+
+Optional manual test runner with summary output.
+
+## Running Tests
+
+### Option 1: Run All Tests (Recommended)
+
+``` r
+devtools::test()
+```
+
+### Option 2: Run Specific Test File
+
+``` r
+testthat::test_file("tests/testthat/test-region_management.R")
+```
+
+### Option 3: Run Tests with Custom Runner
+
+``` r
+source("tests/run_all_tests.R")
+run_all_tests()
+```
+
+### Option 4: Run Individual Test
+
+``` r
+testthat::test_file("tests/testthat/test-shinytest2.R", 
+                    filter = "App loads successfully")
+```
+
+## Test Requirements
+
+### For All Tests:
+
+- `testthat` (\>= 3.0.0)
+- `BsplineQuantReg` package installed
+
+### Environment Setup:
+
+``` r
+# Install test dependencies
+install.packages(c("testthat", "shinytest2"))
+
+# Install the package in development mode
+devtools::install()
+
+# Run tests
+devtools::test()
+```
+
+### CI/CD Test Behavior:
+
+- All tests run on Linux, macOS, and Windows
+- Tests are skipped on CRAN during package submission
+
+## Debugging Failed Tests
+
+### Check Test Output:
+
+``` r
+# Run with verbose output
+devtools::test(reporter = "debug")
+
+# Run specific test with verbose output
+testthat::test_file("tests/testthat/test-region_management.R", 
+                    reporter = "verbose")
+
+# Check if app runs manually
+shiny::runApp("inst/shiny")
+```
+
+**Package not found:**
+
+``` r
+# Reinstall package
+devtools::install(dependencies = TRUE)
+```
+
+## Contributing
+
+When contributing new features: 1. Add corresponding tests in the
+appropriate test file 2. Ensure all existing tests still pass 3. Update
+this README if adding new test files 4. Run `devtools::test()` before
+submitting changes
+
+## License
+
+This test suite is part of BsplineQuantRegGui and is licensed under
+GPL-3.
+
+------------------------------------------------------------------------
+
+**Last Updated:** 2026-08-11 **Maintainer:** Alexandre Abbes

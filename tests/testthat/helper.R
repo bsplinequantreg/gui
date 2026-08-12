@@ -1,8 +1,4 @@
-
-
-
 # tests/testthat/helper.R
-
 # ============================================================================
 # TEST HELPERS - Automatically sourced by testthat
 # ============================================================================
@@ -80,18 +76,6 @@ get_app_dir <- function() {
   stop("Could not find Shiny app directory")
 }
 
-# Check if shinytest2 tests should run
-should_run_shinytest2 <- function() {
-  if (!interactive()) return(FALSE)
-  if (!requireNamespace("shinytest2", quietly = TRUE)) return(FALSE)
-
-  app_dir <- tryCatch(get_app_dir(), error = function(e) NULL)
-  if (is.null(app_dir) || !dir.exists(app_dir)) return(FALSE)
-
-
-
-  return(FALSE)
-}
 
 # Safe operations with timeouts
 safe_click <- function(app, input, timeout_ = 30000, ...) {

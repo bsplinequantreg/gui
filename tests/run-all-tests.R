@@ -13,7 +13,7 @@ run_all_tests <- function() {
     "test-region_management.R",
     "test-regression.R",
     "test-server.R",
-    "test-shinytest2.R"
+    "test-logic.R"
   )
 
   results <- list()
