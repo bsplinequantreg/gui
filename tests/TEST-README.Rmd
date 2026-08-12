@@ -18,13 +18,12 @@ tests/
 ├── testthat.R                    # Main test runner (required by testthat)
 ├── run_all_tests.R               # Manual test runner with summary
 └── testthat/
-    ├── helper.R                  # Test helpers and utilities
-    ├── setup.R                   # Test environment setup
-    ├── teardown.R                # Test environment cleanup
-    ├── test_utils.R              # Tests for helper functions
+    ├── helper.R                  # Test helpers
+    ├── test_utils.R              # Tests utils (constraints and knots build)
     ├── test-region_management.R  # Region management tests
+    ├── test-server.R             # Test of the main server features
     ├── test-regression.R         # Regression and constraint tests
-    └── test-server.R             # Server logic tests
+    └── test-logic                # Server logic tests
 ```
 
 ## Test Files Overview
