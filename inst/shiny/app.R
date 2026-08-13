@@ -1,6 +1,6 @@
 # BsplineQuantReg Shiny Interface
 # Author: Alexandre Abbes
-# version 0.1.0
+# version 0.1.1
 # Stable versionwith graphical region selection
 #
 # Run with:
@@ -392,6 +392,7 @@ ui <- fluidPage(
           ),
 
           # ============ AFFICHAGE DES COEFFICIENTS ============
+          conditionalPanel("packageVersion(BsplineQuantReg) >= '0.2.4'",
           fluidRow(
             column(
               12,
@@ -433,6 +434,7 @@ ui <- fluidPage(
                    uiOutput("derivatives_ui")
             )
           )
+          )# end condtionnale panel²
         ),  # fin tabPane
 
 
@@ -536,7 +538,8 @@ server <- function(input, output, session) {
     region_id = 0,
     selected_region_id = NULL,
     selecting_region = FALSE,
-    deriv= list()
+    deriv= list(),
+    version= packageVersion("BsplineQuantReg")
   )
 
   # ============ CONSTRAINT SYMBOL FUNCTION ============
@@ -1157,7 +1160,7 @@ server <- function(input, output, session) {
       log_console(paste("Verbose:", input$verbose))
 
       # Vérifier la version de BsplineQuantReg
-      version <- packageVersion("BsplineQuantReg")
+      version <- values$version
 
       # Paramètres communs
       args <- list(
@@ -1175,9 +1178,9 @@ server <- function(input, output, session) {
       )
 
       # Ajouter le paramètre type_reg si la version est >= 0.2.3
-      if (version == "0.2.2" && input$type_reg=="mean_square"){
-      showNotification("BsplineQuantReg Version 0.2.2 \n
-      does not support mean square regression !\n
+      if (version <"0.2.3" && input$type_reg=="mean_square"){
+      showNotification("BsplineQuantReg Version 0.2.3 \n
+      needed for mean square regression support!\n
       Falling back to quantile regression.", type = "warning")
       }
 
@@ -1787,50 +1790,7 @@ server <- function(input, output, session) {
     if (is.null(constraints)) {
       return("# Error: constraints not defined")
     }
-    ###########adding derivatives##############
-    n_deriv<-input$deriv_display
-    deriv_plot=""
-    deriv_code=""
-    if (n_deriv != "none") {
-      deriv_plot<-paste("#### Add plots of the derivatives #### \n")
 
-      colors <- c("blue", "darkgreen", "purple")
-      n_deriv <- as.numeric(n_deriv)
-
-      for (d in 1:n_deriv) {
-        deriv_code <- paste0(deriv_code, "\n# ", " derivative",d,"\n")
-        deriv_code <- paste0( deriv_code, "deriv_", d, " <- Bspline_deriv(fitted, der = ", d, ")\n" )
-
-        # Ajouter l'évaluation
-        deriv_code <- paste0(deriv_code, "deriv_", d, "_eval <- deriv_", d, "(x_eval)\n")
-
-        deriv_plot <- paste0(deriv_plot, "plot(x_eval, deriv_",d, "_eval," , "pch = 16, cex = 0.5, col = 'gray',\n",
-        "     main = 'Spline  derivatives", d,"')" , "\n" )
-
-        deriv_plot <- paste0(deriv_plot,
-                             "lines(x_eval, deriv_", d, "_eval, col = '",
-                             colors[d], "', lwd = 1.5, lty = ", d+1, ")\n")
-      }
-
-      # deriv_plot <- paste0(deriv_plot,
-      #                      "legend('topleft', legend = c('Spline fit'",
-      #                      if (n_deriv >= 1) ", '1st derivative'",
-      #                      if (n_deriv >= 2) ", '2nd derivative'",
-      #                      if (n_deriv >= 3) ", '3rd derivative'",
-      #                      "),\n",
-      #                      "       col = c('", input$curve_color, "'",
-      #                      if (n_deriv >= 1) ", 'blue'",
-      #                      if (n_deriv >= 2) ", 'darkgreen'",
-      #                      if (n_deriv >= 3) ", 'purple'",
-      #                      "),\n",
-      #                      "       lty = c(1",
-      #                      if (n_deriv >= 1) ", 2",
-      #                      if (n_deriv >= 2) ", 3",
-      #                      if (n_deriv >= 3) ", 4",
-      #                      "), lwd = 2)\n")
-
-
-    }
 
     paste0(
       "library(BsplineQuantReg)\n\n",
@@ -1865,16 +1825,11 @@ server <- function(input, output, session) {
       "                       callable = TRUE)\n\n",
       "x_eval <- seq(min(x), max(x), length.out = 300)\n",
       "y_eval <- fitted(x_eval)\n\n",
-      "par(mfrow=c(",n_deriv+1,",1))\n",
       "plot(x, y, pch = 16, cex = 0.5, col = 'gray',main='fitted spline')\n",
       "lines(x_eval, y_eval, col = '",
       input$curve_color,
-      "', lwd = 2)\n",
-      "#PP-Polynomial coefficients of spline\n",
-      "Co=show_pp(fitted,local=",input$local,")", "\n",
-      "print(Co)\n",
-      deriv_code,
-      deriv_plot
+      "', lwd = 2)\n"
+
     )
   })
 
