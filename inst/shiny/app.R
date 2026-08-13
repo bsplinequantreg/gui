@@ -111,7 +111,7 @@ ui <- fluidPage(
       fluidRow(column(
         12,
         textInput("custom_func", NULL, value = "2*x + 0.5*sin(6*pi*x) + 0.2*rnorm(n)")
-      ), ),
+      ) ),
 
       actionButton("generate_custom", "Generate", class = "btn-sm btn-primary"),
 
@@ -368,62 +368,47 @@ ui <- fluidPage(
 
             )
           ),
+
           br(),
 
 
-          # Information (unique)
+          ##========== INFORMATIONS ============
           fluidRow(
-            column(6, h5("Information"), verbatimTextOutput("fit_info")),
-            column(6, h5("List of knots"),
+            # Information générale
+            column(
+              6,
+              h5("Information"),
+              verbatimTextOutput("fit_info")
+            ),
+
+            # Noeuds et coefficients
+            column(
+              6,
+              h5("List of knots"),
               verbatimTextOutput("knots_compact", placeholder = TRUE),
               h5("Coefficients on the Bspline Basis"),
-              verbatimTextOutput("coeff_list", placeholder = TRUE))
-
+              verbatimTextOutput("coeff_list", placeholder = TRUE)
+            )
           ),
 
-          # hr(),
-
-          # Demos
-          # fluidRow(
-          #   column(
-          #     12,
-          #     h5("Run Demos:"),
-          #     actionButton("demo_comp", "Comprehensive", class = "btn-sm btn-info"),
-          #     actionButton("demo_monot", "Monotonicity basic", class = "btn-sm btn-info"),
-          #     actionButton("demo_log", "Logistic", class = "btn-sm btn-info"),
-          #     actionButton("demo_temp", "Temperature", class = "btn-sm btn-info"),
-          #     actionButton("demo_temp2", "Temperature2", class = "btn-sm btn-info"),
-          #     actionButton("demo_conv", "Convexity", class = "btn-sm btn-info"),
-          #     actionButton("demo_degrees", "Degrees", class = "btn-sm btn-info"),
-          #     actionButton("demo_derivative", "Derivative", class = "btn-sm btn-info"),
-          #     actionButton("demo_der3", "Third derivative", class = "btn-sm btn-info")
-          #   )
-          # ),
-          div(
-            id = "demo_area",
-            style = "display: none; margin-top: 10px;",
-            hr(),
-            h4("Demo Results:"),
-            div(
-              style = "overflow: auto; width: 100%; max-height: 1800px;",
-              plotOutput("demo_plot", height = 800)  # Hauteur par défaut, sera modifiée dynamiquement
-            ),
-            br(),
-            verbatimTextOutput("demo_output")
-          ),
+          # ============ AFFICHAGE DES COEFFICIENTS ============
+          fluidRow(
+            column(
+              12,
+              radioButtons(
+                "local",
+                "Local basis coefficients display:",
+                choices = c("Canonical (1, x, x²...)" = "FALSE",
+                            "Local ((x-t_k)^i) for each knot t_k" = "TRUE"),
+                selected = "TRUE",
+                inline = TRUE
+              ),
+              verbatimTextOutput("bspline_coeff", placeholder = TRUE)
+            )
+          )
+        ),  # fin tabPane
 
 
-          #div(id = "demo_area",
-          #     style = "display: none; margin-top: 10px;",
-          #     hr(),
-          #     h4("Demo Results:"),
-          #     plotOutput("demo_plot", width="auto", height = "1500px"),
-          #     br(),
-          #     verbatimTextOutput("demo_output")
-          # )
-
-
-        ),
 
         tabPanel(
           "Data",
@@ -478,7 +463,21 @@ ui <- fluidPage(
                  white-space: pre-wrap; word-wrap: break-word;",
             verbatimTextOutput("console_output")
           )
-        )))
+        ))),
+        tabPanel('Demo',br(),
+                 div(
+                   id = "demo_area",
+                   style = "display: none; margin-top: 10px;",
+                   hr(),
+                   h4("Demo Results:"),
+                   div(
+                     style = "overflow: auto; width: 100%; max-height: 1800px;",
+                     plotOutput("demo_plot", height = 800)  # Hauteur par défaut, sera modifiée dynamiquement
+                   ),
+                   br(),
+                   verbatimTextOutput("demo_output")
+                 )
+                 )
       )
     )
   )
@@ -1410,8 +1409,10 @@ server <- function(input, output, session) {
         # Extraire les informations
           list_coeff <- (get_parameters(values$fitted))$coeff
           status <- (get_parameters(values$fitted))$result$status
+          value <- (get_parameters(values$fitted))$result$value
           cat("Status of convergence: ",status,"\n")
-          cat("Number (dimension of the basis): ",
+          cat("Value of the loss Function (min): ", round(value,4),"\n" )
+          cat("Dimension of the basis: ",
               length(list_coeff %||% numeric(0)), "\n")
           cat("Values: \n")
           cat(list_coeff)
@@ -1444,6 +1445,21 @@ server <- function(input, output, session) {
         "Third derivative",paste( c(constraints$der3),collapse = ",") , "\n"
   )
   } )
+
+  #### bspline coefficients
+  output$bspline_coeff<-renderPrint(
+    {if (is.null(values$fitted)){return("No regression")}
+    else{
+      return(
+        show_pp(values$fitted,local=input$local,verbose=input$verbose)
+        )
+
+    }
+      }
+    )
+
+
+
 
   # = Curve cournt =
   output$curve_count <- renderText({

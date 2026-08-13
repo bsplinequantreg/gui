@@ -100,14 +100,15 @@ This package depends on:
 
 ### 4. Run Analysis
 - Click Run to execute the regression with your chosen solver and type of regression ('BsplineQuantReg' >= '0.2.3')
-- View results: the curve and the Information. Coefficients (on the B-spline Basis)
+- View results: the curve and the Information. 
+- View Coefficients on the B-spline Basis and on polynomial basis (local/canonical)
 - View verbose output in the Console tab if verbose = TRUE is selected
-- Informations: Degree, tau, constraints, knots and coefficients
-- Data: Summary and table of the data
+- "Data" tab: Summary and table of the data
 - R Code: Generated code to reproduce the analysis
 
 ### 5. Run Demos
 Click on any demo to run it. The degree of the spline is that selected in the GUI.
+You see the result in the "demo" tab.
 
 ## Citation
 
