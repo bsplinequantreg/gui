@@ -497,28 +497,6 @@ server <- function(input, output, session) {
     version= packageVersion("BsplineQuantReg")
   )
 
-  # ============ CONSTRAINT SYMBOL FUNCTION ============
-  get_sym <- function(val, symbols) {
-    if (is.null(val) || is.na(val))
-      return("x")
-    val <- as.numeric(val)
-    if (!val %in% c(-1, 0, 1))
-      return("x")
-    return(symbols[val + 2])
-  }
-
-  # ============ FIELD UPDATE FUNCTION ============
-  update_region_fields <- function(xmin, xmax) {
-    if (is.null(xmin) ||
-        is.null(xmax) || is.na(xmin) || is.na(xmax))
-      return()
-    if (xmin >= xmax) {
-      showNotification("X min must be less than X max", type = "warning")
-      return()
-    }
-    updateNumericInput(session, "region_xmin", value = round(xmin, 3))
-    updateNumericInput(session, "region_xmax", value = round(xmax, 3))
-  }
 
   # ============ CONSOLE ============
 
@@ -895,81 +873,6 @@ server <- function(input, output, session) {
     showNotification(paste("Region", id, "deleted"), type = "message")
   }, ignoreNULL = TRUE)
 
-  # ============ CONSTRAINT CONSTRUCTION ============
-
-  build_constraints <- function() {
-    degree <- input$degree
-    kn <- length(values$knot) - 1
-
-    if (kn < 1) {
-      showNotification("Not enough knots!", type = "warning")
-      return(NULL)
-    }
-
-    safe_repeat <- function(val, len) {
-      if (length(val) == 1) {
-        return(rep(as.numeric(val), len))
-      }
-      v <- as.numeric(val)
-      if (length(v) > len)
-        return(v[1:len])
-      if (length(v) < len)
-        return(c(v, rep(0, len - length(v))))
-      return(v)
-    }
-
-    if (input$constraint_mode == "uniform") {
-      monot <- input$monot
-      conv <- input$conv
-      der3 <- input$der3
-    } else {
-      monot <- rep(0, kn + 1) #each time give the maximum of knots
-      conv <- rep(0, kn + 1) # so that for all degrees
-      der3 <- rep(0, kn + 1)  # the number of constraints is satisfied
-      for (region in values$regions) {
-        for (i in 1:kn) {
-          x1 <- values$knot[i]
-          x2 <- values$knot[i + 1]
-          if (x2 > region$xmin && x1 < region$xmax) {
-            if (region$monot != 0)
-              monot[i] <- region$monot
-            if (region$conv != 0) {
-              conv[i] <- region$conv
-              conv[i + 1] <- region$conv
-            }
-            if (region$der3 != 0 && degree >= 3) {
-              der3[i] <- region$der3
-            }
-          }
-        }
-      }
-    }
-    # Dans build_constraints(), pour les contraintes uniformes
-    if (input$constraint_mode == "uniform") {
-      # S'assurer que les valeurs sont numériques
-      monot_val <- as.numeric(input$monot)
-      conv_val <- as.numeric(input$conv)
-      der3_val <- as.numeric(input$der3)
-
-      # Remplacer NA par 0
-      if (is.na(monot_val))
-        monot_val <- 0
-      if (is.na(conv_val))
-        conv_val <- 0
-      if (is.na(der3_val))
-        der3_val <- 0
-
-      monot <- rep(monot_val, kn + 1)
-      conv <- rep(conv_val, kn + 1) # débordre pour le degre 2
-      der3 <- rep(der3_val, kn + 1) # débordre pour le degre 3
-    }
-    if (degree < 3)
-      der3 <- rep(0, kn + 1)
-
-    list(monot = monot,
-         conv = conv,
-         der3 = der3)
-  }
 
   # ============ CSV IMPORT ============
 
@@ -1647,6 +1550,132 @@ server <- function(input, output, session) {
     demo_der3 = 800,
     derivative2 = 1800
   )
+
+
+  ##========== Exécuter les demos =================
+  observeEvent(input$demo_comp, {
+    execute_demo("comprehensive")
+  })
+  observeEvent(input$demo_monot, {
+    execute_demo("monotonicity_basic")
+  })
+  observeEvent(input$demo_log, {
+    execute_demo("logistic")
+  })
+  observeEvent(input$demo_temp, {
+    execute_demo("temperature")
+  })
+  observeEvent(input$demo_temp2, {
+    execute_demo("temperature2")
+  })
+  observeEvent(input$demo_conv, {
+    execute_demo("convexity")
+  })
+  observeEvent(input$demo_degrees, {
+    execute_demo("degrees_comparison")
+  })
+  observeEvent(input$demo_der3, {
+    execute_demo("demo_der3")
+  })
+  observeEvent(input$demo_derivative, {
+    execute_demo("derivative2")
+  })
+
+  # Afficher les résultats
+  output$demo_plot <- renderPlot({
+    if (!is.null(demo_results$plot)) {
+      grid::grid.draw(demo_results$plot)
+    }
+  })
+
+  output$demo_output <- renderPrint({
+    if (!is.null(demo_results$output)) {
+      cat(paste(demo_results$output, collapse = "\n"))
+    }
+  })
+
+  #================================
+  #   FUNCTION SECTION
+  #================================
+
+
+# ============ CONSTRAINT CONSTRUCTION ============
+
+  build_constraints <- function() {
+    degree <- input$degree
+    kn <- length(values$knot) - 1
+
+    if (kn < 1) {
+      showNotification("Not enough knots!", type = "warning")
+      return(NULL)
+    }
+
+    safe_repeat <- function(val, len) {
+      if (length(val) == 1) {
+        return(rep(as.numeric(val), len))
+      }
+      v <- as.numeric(val)
+      if (length(v) > len)
+        return(v[1:len])
+      if (length(v) < len)
+        return(c(v, rep(0, len - length(v))))
+      return(v)
+    }
+
+    if (input$constraint_mode == "uniform") {
+      monot <- input$monot
+      conv <- input$conv
+      der3 <- input$der3
+    } else {
+      monot <- rep(0, kn + 1) #each time give the maximum of knots
+      conv <- rep(0, kn + 1) # so that for all degrees
+      der3 <- rep(0, kn + 1)  # the number of constraints is satisfied
+      for (region in values$regions) {
+        for (i in 1:kn) {
+          x1 <- values$knot[i]
+          x2 <- values$knot[i + 1]
+          if (x2 > region$xmin && x1 < region$xmax) {
+            if (region$monot != 0)
+              monot[i] <- region$monot
+            if (region$conv != 0) {
+              conv[i] <- region$conv
+              conv[i + 1] <- region$conv
+            }
+            if (region$der3 != 0 && degree >= 3) {
+              der3[i] <- region$der3
+            }
+          }
+        }
+      }
+    }
+    # Dans build_constraints(), pour les contraintes uniformes
+    if (input$constraint_mode == "uniform") {
+      # S'assurer que les valeurs sont numériques
+      monot_val <- as.numeric(input$monot)
+      conv_val <- as.numeric(input$conv)
+      der3_val <- as.numeric(input$der3)
+
+      # Remplacer NA par 0
+      if (is.na(monot_val))
+        monot_val <- 0
+      if (is.na(conv_val))
+        conv_val <- 0
+      if (is.na(der3_val))
+        der3_val <- 0
+
+      monot <- rep(monot_val, kn + 1)
+      conv <- rep(conv_val, kn + 1) # débordre pour le degre 2
+      der3 <- rep(der3_val, kn + 1) # débordre pour le degre 3
+    }
+    if (degree < 3)
+      der3 <- rep(0, kn + 1)
+
+    list(monot = monot,
+         conv = conv,
+         der3 = der3)
+  }
+
+#============  DEMOS  ===================
   execute_demo <- function(demo_name) {
     showNotification(paste("Running demo:", demo_name), type = "message")
 
@@ -1705,50 +1734,33 @@ server <- function(input, output, session) {
       runjs('document.getElementById("demo_area").style.display = "block";')
     })
   }
+  #FUNCTIONS for REGIONS
+  # ============ CONSTRAINT SYMBOL FUNCTION ============
+  get_sym <- function(val, symbols) {
+    if (is.null(val) || is.na(val))
+      return("x")
+    val <- as.numeric(val)
+    if (!val %in% c(-1, 0, 1))
+      return("x")
+    return(symbols[val + 2])
+  }
 
-  # Exécuter les démos
-  observeEvent(input$demo_comp, {
-    execute_demo("comprehensive")
-  })
-  observeEvent(input$demo_monot, {
-    execute_demo("monotonicity_basic")
-  })
-  observeEvent(input$demo_log, {
-    execute_demo("logistic")
-  })
-  observeEvent(input$demo_temp, {
-    execute_demo("temperature")
-  })
-  observeEvent(input$demo_temp2, {
-    execute_demo("temperature2")
-  })
-  observeEvent(input$demo_conv, {
-    execute_demo("convexity")
-  })
-  observeEvent(input$demo_degrees, {
-    execute_demo("degrees_comparison")
-  })
-  observeEvent(input$demo_der3, {
-    execute_demo("demo_der3")
-  })
-  observeEvent(input$demo_derivative, {
-    execute_demo("derivative2")
-  })
-
-  # Afficher les résultats
-  output$demo_plot <- renderPlot({
-    if (!is.null(demo_results$plot)) {
-      grid::grid.draw(demo_results$plot)
+  # ============ FIELD UPDATE FUNCTION ============
+  update_region_fields <- function(xmin, xmax) {
+    if (is.null(xmin) ||
+        is.null(xmax) || is.na(xmin) || is.na(xmax))
+      return()
+    if (xmin >= xmax) {
+      showNotification("X min must be less than X max", type = "warning")
+      return()
     }
-  })
+    updateNumericInput(session, "region_xmin", value = round(xmin, 3))
+    updateNumericInput(session, "region_xmax", value = round(xmax, 3))
+  }
 
-  output$demo_output <- renderPrint({
-    if (!is.null(demo_results$output)) {
-      cat(paste(demo_results$output, collapse = "\n"))
-    }
-  })
 
-}
+
+} #===========End server===========
 
 # Run app
 shinyApp(ui = ui, server = server)

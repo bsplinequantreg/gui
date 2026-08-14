@@ -10,6 +10,36 @@ editor_options:
 
 This directory contains the complete test suite for the
 BsplineQuantRegGui package.
+## Overview
+
+These tests **do not directly test the GUI interface itself** (i.e., they do not simulate user interactions with the Shiny app). Instead, they test the **core logic and functions** that power the GUI, ensuring the global coherence and reliability of the application's backend.
+
+### What is tested
+
+The test suite verifies:
+
+- **Server logic**: Reactive values, data loading, knot management, region management
+- **Regression engine**: Quantile regression with B-splines, constraints, multiplicity handling
+- **Polynomial operations**: Evaluation, differentiation, PP (Piecewise Polynomial) conversion
+- **GUI helper functions**: `build_knot_sequence`, `build_constraints`, `get_sym`, etc.
+- **Data generation**: Test data creation, knot generation, region creation
+
+### What is NOT tested
+
+- **UI rendering**: Visual layout, CSS, reactivity of UI elements
+- **User interactions**: Click events, plot selections, drag-and-drop
+- **Browser compatibility**: Cross-browser testing of the Shiny app
+
+### Why this approach
+
+Testing the logic separately from the UI provides:
+
+1. **Speed**: Logic tests run fast (< 10 seconds)
+2. **Reliability**: No dependency on browser drivers or headless Chrome
+3. **Maintainability**: Easier to debug and update
+4. **Coverage**: High code coverage for the core functionality
+
+For UI testing, see the `test-shinytest2.R` file which uses `shinytest2` for end-to-end testing (requires Chrome/Chromium)
 
 ## Test File Structure
 
