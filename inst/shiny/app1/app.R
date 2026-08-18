@@ -751,14 +751,16 @@ server <- function(input, output, session) {
   })
 
   observeEvent(event_data("plotly_click", source = "plot"), {
+
     if (values$adding_knot) {
       click <- event_data("plotly_click", source = "plot")
       if (!is.null(click) && !is.null(values$xtab)) {
         x <- click$x
         if (x > min(values$xtab) && x < max(values$xtab)) {
           if (!any(abs(values$knot - x) < 1e-6)) {
-            values$manual_knots <- c(values$manual_knots, x)
-            values$knot <- sort(c(values$knot, x))
+            if (length(values$manual_knots)==0) values$manual_knots<-x
+            else {values$manual_knots <- c(values$manual_knots, x)}
+            #values$knot <- sort(c(values$knot, x))
             showNotification(paste("Knot added at x =", round(x, 3)), type = "message")
           } else {
             showNotification("This knot already exists", type = "warning")

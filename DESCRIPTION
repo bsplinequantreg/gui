@@ -24,6 +24,7 @@ Imports:
     shinythemes
 Suggests: 
     cobs,
+    shinytest2,
     testthat (>= 3.0.0)
 LazyData: yes
 Config/testthat/edition: 3
