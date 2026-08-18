@@ -5,6 +5,7 @@
 - 'temp' mode, use years as x values, not rescaling, knots are added as manual_knots, auto_knots set as 2.
 ### Change
 - simplify region mode
+- prepare for next version, run_gui() points to app1.R
 
 
 #'BsplineQuantRegGui' 0.1.1
