@@ -1,6 +1,6 @@
 # BsplineQuantReg Shiny Interface
 # Author: Alexandre Abbes
-# version 0.1.1
+# version 0.1.2
 # Stable versionwith graphical region selection
 #
 # Run with:
@@ -222,7 +222,7 @@ ui <- fluidPage(
 
       div(
         style = "font-size: 11px; color: #666; text-align: center;",
-        p("BsplineQuantRegGui v0.1.0"),
+        p("BsplineQuantRegGui v0.1.2"),
         p("BsplineQuantReg 0.2.2"),
         p("GPL3 (c) Abbes, 2026"),
         a("GitHub", href = "https://github.com/alexandreabbes/BsplineQuantReg", target = "_blank")
@@ -282,7 +282,9 @@ ui <- fluidPage(
                 condition = "input.constraint_mode == 'region'",
                 div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "1. Click 'Select'"),
                 div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "2. Select a region on the plot"),
-                div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "3. X min/max fields are updated"),
+                div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "   (X min/max fields are updated)"),
+                div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "3. Chose constraints"),
+                div(style = "font-size: 13px; color: #555; margin-bottom: 10px;", "4. Click 'Add Region' if OK"),
 
                 fluidRow(column(
                   6,
@@ -296,7 +298,7 @@ ui <- fluidPage(
                   6,
                   actionButton(
                     "clear_regions",
-                    "Cancel region",
+                    "Clear all regions",
                     class = "btn-sm btn-danger",
                     style = "width:100%;"
                   )
@@ -338,10 +340,11 @@ ui <- fluidPage(
                 fluidRow(column(
                   6,
                   actionButton("add_region", "Add region", class = "btn-sm btn-primary", style = "width:100%;")
-                ), column(
-                  6,
-                  actionButton("update_region", "Update", class = "btn-sm btn-info", style = "width:100%;")
-                )),
+                )#, column(
+                  #6,
+                  #actionButton("update_region", "Update", class = "btn-sm btn-info", style = "width:100%;")
+                #)
+                ),
                 br(),
                 div(id = "regions_list", style = "max-height: 120px; overflow-y: auto;")
               ),
@@ -419,7 +422,8 @@ ui <- fluidPage(
             p("1. Mode 'Per region'"),
             p("2. 'Select' a rectangle on the plot"),
             p("3. Select constraints"),
-            p("4. 'Add region'")
+            p("4. 'Add region'"),
+            p("5. 'View and clear regions in the region tab'")
           ))
         ),
         tabPanel(
@@ -715,6 +719,8 @@ server <- function(input, output, session) {
 
         #if (is.na(knots_count)){knots_count=2}
         values$auto_knots <- as.numeric(quantile(values$xtab, probs = ((0:(kn)) / (kn))))
+        if (length(values$manual_knots)==0){values$knot = values$auto_knots}
+        else
         values$knot = sort(union(values$auto_knots,values$manual_knots))
     }
   }
@@ -773,7 +779,8 @@ server <- function(input, output, session) {
     showNotification("knot reset", type = "message")
   })
 
-  # ============ SELECTION MANAGEMENT ============
+  # ============ REGION SELECTION MANAGEMENT ============
+  # =====================================================
 
   observeEvent(input$start_selection, {
     values$selecting_region <- !values$selecting_region
@@ -810,7 +817,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # ============ REGIONS ============
 
   observeEvent(input$add_region, {
     req(values$xtab, values$knot)
@@ -834,28 +840,28 @@ server <- function(input, output, session) {
     showNotification(paste("Region added: [", round(xmin, 3), ", ", round(xmax, 3), "]"), type = "message")
   })
 
-  observeEvent(input$update_region, {
-    if (!is.null(values$selected_region_id)) {
-      idx <- which(sapply(values$regions, function(r)
-        r$id == values$selected_region_id))
-      if (length(idx) > 0) {
-        values$regions[[idx]]$xmin <- input$region_xmin
-        values$regions[[idx]]$xmax <- input$region_xmax
-        values$regions[[idx]]$monot <- as.numeric(input$region_monot)
-        values$regions[[idx]]$conv <- as.numeric(input$region_conv)
-        values$regions[[idx]]$der3 <- as.numeric(input$region_der3)
-        showNotification("Region updated", type = "message")
-      }
-    } else {
-      showNotification("Select a region first", type = "warning")
-    }
-  })
+  # observeEvent(input$update_region, {
+  #   if (!is.null(values$selected_region_id)) {
+  #     idx <- which(sapply(values$regions, function(r)
+  #       r$id == values$selected_region_id))
+  #     if (length(idx) > 0) {
+  #       values$regions[[idx]]$xmin <- input$region_xmin
+  #       values$regions[[idx]]$xmax <- input$region_xmax
+  #       values$regions[[idx]]$monot <- as.numeric(input$region_monot)
+  #       values$regions[[idx]]$conv <- as.numeric(input$region_conv)
+  #       values$regions[[idx]]$der3 <- as.numeric(input$region_der3)
+  #       showNotification("Region updated", type = "message")
+  #     }
+  #   } else {
+  #     showNotification("Select a region first", type = "warning")
+  #   }
+  # })
 
   observeEvent(input$clear_regions, {
     values$regions <- list()
     values$region_id <- 0
     values$selected_region_id <- NULL
-    showNotification("Regions cleared", type = "message")
+    showNotification("All regions cleared", type = "message")
   })
 
   observeEvent(input$delete_region, {
@@ -873,7 +879,7 @@ server <- function(input, output, session) {
     showNotification(paste("Region", id, "deleted"), type = "message")
   }, ignoreNULL = TRUE)
 
-
+  #=============DATA IMPORT ============
   # ============ CSV IMPORT ============
 
   observeEvent(input$load_csv, {
@@ -1263,28 +1269,28 @@ server <- function(input, output, session) {
     p
   })
 
-  # ============ REGION SELECTION BY CLICK ============
-
-  observeEvent(event_data("plotly_click", source = "plot"), {
-    if (!values$selecting_region && input$constraint_mode == "region") {
-      click <- event_data("plotly_click", source = "plot")
-      if (!is.null(click)) {
-        x <- click$x
-        for (region in values$regions) {
-          if (x >= region$xmin && x <= region$xmax) {
-            values$selected_region_id <- region$id
-            update_region_fields(region$xmin, region$xmax)
-            updateRadioButtons(session, "region_monot", selected = as.character(region$monot))
-            updateRadioButtons(session, "region_conv", selected = as.character(region$conv))
-            updateRadioButtons(session, "region_der3", selected = as.character(region$der3))
-            showNotification(paste("Region", region$id, "selected"), type = "message")
-            break
-          }
-        }
-      }
-    }
-
-  })
+  # # ============ REGION SELECTION BY CLICK ============
+  #
+  # observeEvent(event_data("plotly_click", source = "plot"), {
+  #   if (!values$selecting_region && input$constraint_mode == "region") {
+  #     click <- event_data("plotly_click", source = "plot")
+  #     if (!is.null(click)) {
+  #       x <- click$x
+  #       for (region in values$regions) {
+  #         if (x >= region$xmin && x <= region$xmax) {
+  #           values$selected_region_id <- region$id
+  #           update_region_fields(region$xmin, region$xmax)
+  #           updateRadioButtons(session, "region_monot", selected = as.character(region$monot))
+  #           updateRadioButtons(session, "region_conv", selected = as.character(region$conv))
+  #           updateRadioButtons(session, "region_der3", selected = as.character(region$der3))
+  #           showNotification(paste("Region", region$id, "selected"), type = "message")
+  #           break
+  #         }
+  #       }
+  #     }
+  #   }
+  #
+  # })
   # ============ OUTPUTS ============
   # = INFO = COEFF
   output$coeff_list<- renderPrint( {

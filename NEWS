@@ -3,7 +3,8 @@
 ### fix:
 - manual_knots and auto_knots are 2 independent lists that are joined in an Observe() function.
 - 'temp' mode, use years as x values, not rescaling, knots are added as manual_knots, auto_knots set as 2.
-
+### Change
+- simplify region mode
 
 
 #'BsplineQuantRegGui' 0.1.1

@@ -22,12 +22,8 @@
 
 run_gui <- function(brow = TRUE, rstudio = FALSE, host = '127.0.0.1', port = 3674) {
 
-app_dir <- system.file("shiny", package = "BsplineQuantRegGui")
+app_dir <- "./inst/shiny/"
 
-# Vérifier que le dossier existe
-if (app_dir == "" || !dir.exists(app_dir)) {
-  stop("Shiny app directory not found. Reinstall the package.")
-}
 
 if (!brow && !rstudio) {
   shiny::runApp(app_dir, launch.browser = FALSE, host = host, port = port)
