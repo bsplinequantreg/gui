@@ -1,2 +1,2 @@
-library(shinytest2)
-record_test("./inst/shiny")
+#library(shinytest2)
+#record_test("./inst/shiny")
