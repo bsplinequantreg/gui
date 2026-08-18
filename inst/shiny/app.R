@@ -483,6 +483,7 @@ server <- function(input, output, session) {
     ytab = NULL,
     knot = NULL,
     manual_knots = list(),
+    auto_knots=list(),
     adding_knot = FALSE,
     fitted = NULL,
     x_eval = NULL,
@@ -653,7 +654,8 @@ server <- function(input, output, session) {
         0.13
       )
       years <- 1880:1992
-      x <- (years - 1880) / (1992 - 1880)
+      #x <- (years - 1880) / (1992 - 1880)
+      x<-years
       y <- temp_data
       values$xtab <- x
       values$ytab <- y
@@ -662,8 +664,13 @@ server <- function(input, output, session) {
       values$curve_lines <- list()
       values$regions <- list()
       year_knots <- c(1880, 1889, 1900, 1910, 1930, 1940, 1965, 1992)
-      knot <- (year_knots - 1880) / (1992 - 1880)
-      values$knot <- knot
+      knot<-year_knots
+      #knot <- (year_knots - 1880) / (1992 - 1880)
+      values$manual_knots<-knot
+      values$knot_count <- 2
+      updateNumericInput(session,'knots_count',value=2)
+      values$knot<-c(values$manual_knots,values$auto_knots)
+
       showNotification("Temperature data loaded", type = "message")
     })
   })
@@ -694,21 +701,21 @@ server <- function(input, output, session) {
   # ============ KNOTS ============
 
   observe({
-    if (!is.null(values$xtab) && length(values$manual_knots) == 0)
+    if (!is.null(values$xtab))
     {
       if (!is.na(input$knots_count))
       {
-        kn <- max((input$knots_count), 2) - 1
+        kn <- max((input$knots_count), 2) - 1}
+      else{
+        kn = 1}
 
         #if (is.na(knots_count)){knots_count=2}
-        values$knot <- as.numeric(quantile(values$xtab, probs = ((0:(kn)) / (kn))))
-      }
-      else{
-        kn = 1
-        values$knot = c(0, 1)
-      }
+        values$auto_knots <- as.numeric(quantile(values$xtab, probs = ((0:(kn)) / (kn))))
+        values$knot = sort(union(values$auto_knots,values$manual_knots))
     }
-  })
+  }
+  )
+
 
   output$knots_compact <- renderPrint({
     if (!is.null(values$knot) && length(values$knot) > 0) {
@@ -722,18 +729,7 @@ server <- function(input, output, session) {
       cat("(none)")
     }
   })
-  output$knots_compact <- renderPrint({
-    if (!is.null(values$knot) && length(values$knot) > 0) {
-      k <- round(values$knot, 3)
-      if (length(k) <= 8) {
-        cat(paste(k, collapse = ", "))
-      } else {
-        cat(paste(c(head(k, 4), "...", tail(k, 4)), collapse = ", "))
-      }
-    } else {
-      cat("(none)")
-    }
-  })
+
   observeEvent(input$add_knot_mode, {
     values$adding_knot <- !values$adding_knot
     if (values$adding_knot) {

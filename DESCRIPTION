@@ -1,7 +1,7 @@
 Package: BsplineQuantRegGui
 Type: Package
 Title: Interactive 'shiny' Interface for 'BsplineQuantReg'
-Version: 0.1.1
+Version: 0.1.2
 Language: en-GB
 Date: 2026-07-28
 Authors@R: person("Alexandre", "Abbes", email = "alexandre.abbes@proton.me", role = c("aut", "cre"))
